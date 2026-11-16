@@ -17,20 +17,33 @@ Pinout: wiki **Donanım** sayfası (NSS D8, DIO0 D2, RST D0, SPI D5/D6/D7). GPS 
 ## Kullanım
 
 ```bash
-pio run -e node_a -t upload      # A: verici
-pio run -e node_b -t upload      # B: alıcı
-pio device monitor -e node_b     # alıcı çıktısı
+pio run -e node_a -t upload      # A: alıcı
+pio run -e node_b -t upload      # B: verici
+pio device monitor -e node_a     # alıcı çıktısı
 ```
+
+İki kartı birlikte izlemek için: `lora-izle` (repo `tools/dual_monitor.py`).
+
+## LED ile düğüm tanıma
+
+Kart üstündeki mavi LED (GPIO2 / D4):
+
+| Durum | A (alıcı) | B (verici) |
+|-------|-----------|------------|
+| Açılış (kimlik, 3 kez) | tek yanıp sönme | çift yanıp sönme |
+| Normal çalışma | her alınan pakette **1 uzun** yanma | her gönderimde **2 kısa** yanıp sönme |
+| CRC hatası | 5 hızlı yanıp sönme | — |
+| Arıza (SX1278 yok / begin hatası) | sürekli hızlı yanıp sönme | sürekli hızlı yanıp sönme |
 
 `upload_port` / `monitor_port` değerleri `/dev/serial/by-path/...` ile sabitlendi (bkz. Donanım → Kartlar).
 
 ## Beklenen çıktı
 
 ```
-[B] RegVersion(0x42) = 0x12 -> OK (SX1278)
-[B] radio.begin OK
-[B] Dinleniyor (startReceive=0)
-[B] RX "PING A #0" | RSSI -45.0 dBm | SNR 9.5 dB | f_err 1200 Hz | ok=1 hata=0
+[A] RegVersion(0x42) = 0x12 -> OK (SX1278)
+[A] radio.begin OK
+[A] Dinleniyor (startReceive=0)
+[A] RX "PING B #0" | RSSI -77.0 dBm | SNR 10.8 dB | f_err 870 Hz | ok=1 hata=0
 ```
 
 ## Hata durumları
