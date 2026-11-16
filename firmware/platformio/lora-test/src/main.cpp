@@ -18,8 +18,13 @@
 #include <SPI.h>
 #include <RadioLib.h>
 
-#ifndef NODE_ID
-#define NODE_ID "?"
+// NODE_ID build flag'den tırnaksız gelir (-D NODE_ID=A); Windows/Linux kabuk farkı olmasın diye
+#define XSTR(x) STR(x)
+#define STR(x) #x
+#ifdef NODE_ID
+#define NODE_NAME XSTR(NODE_ID)
+#else
+#define NODE_NAME "?"
 #endif
 #ifndef ROLE_TX
 #define ROLE_TX 0
@@ -47,7 +52,7 @@ SX1278 radio = new Module(PIN_NSS, PIN_DIO0, PIN_RST, RADIOLIB_NC);
 volatile bool dio0Flag = false;
 IRAM_ATTR void onDio0() { dio0Flag = true; }
 
-#define LOG(...) do { Serial.printf("[" NODE_ID "] " __VA_ARGS__); Serial.println(); } while (0)
+#define LOG(...) do { Serial.printf("[" NODE_NAME "] " __VA_ARGS__); Serial.println(); } while (0)
 
 // ---- Bloklamayan LED desen motoru
 // Desen: ms cinsinden süreler, sırayla YANIK, SÖNÜK, YANIK, SÖNÜK ...
@@ -85,7 +90,7 @@ static const uint16_t PAT_FAIL[]   = {100, 100};                 // sürekli hı
 
 static void ledIdentify() {
   // Açılışta bloklayarak oynat (radyo başlamadan önce, ~3 sn)
-  if (NODE_ID[0] == 'B') LED_PLAY(PAT_ID_B, 3); else LED_PLAY(PAT_ID_A, 3);
+  if (NODE_NAME[0] == 'B') LED_PLAY(PAT_ID_B, 3); else LED_PLAY(PAT_ID_A, 3);
   while (ledPat) { ledUpdate(); delay(5); }
 }
 
@@ -123,7 +128,7 @@ void setup() {
   Serial.println();
   LOG("=== Ra-02 test | rol: %s | %.3f MHz SF%u BW%.0f CR4/%u %d dBm ===",
       ROLE_TX ? "VERICI" : "ALICI", FREQ_MHZ, SF, BW_KHZ, CR, POWER_DBM);
-  LOG("LED: kimlik deseni (%s)", NODE_ID[0] == 'B' ? "cift yanip sonme" : "tek yanip sonme");
+  LOG("LED: kimlik deseni (%s)", NODE_NAME[0] == 'B' ? "cift yanip sonme" : "tek yanip sonme");
   ledIdentify();
 
   // 1) SPI kablolama kontrolü
@@ -162,7 +167,7 @@ static uint32_t txStart = 0;
 void loop() {
   if (!txBusy && (lastTx == 0 || millis() - lastTx >= TX_INTERVAL_MS)) {
     char msg[48];
-    snprintf(msg, sizeof(msg), "PING %s #%lu", NODE_ID, (unsigned long)seq);
+    snprintf(msg, sizeof(msg), "PING %s #%lu", NODE_NAME, (unsigned long)seq);
     dio0Flag = false;
     int st = radio.startTransmit(msg);
     txStart = millis();

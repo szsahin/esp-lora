@@ -1,9 +1,11 @@
 #!/home/mb/.local/share/pio-venv/bin/python
 """İki düğümün seri çıktısını aynı anda okur.
 
-Kullanım: dual_monitor.py [saniye] [--reset]
+Kullanım: dual_monitor.py [saniye] [--reset] [--a PORT] [--b PORT]
   saniye  : 0 veya verilmezse süresiz (Ctrl+C ile çık)
   --reset : başlarken iki kartı da resetle
+  --a/--b : port (ör. Windows'ta --a COM5 --b COM6). Verilmezse Linux by-path varsayılanları.
+Gerekli: pyserial (pip install pyserial)
 """
 import sys, time, threading, serial
 
@@ -11,7 +13,14 @@ PORTS = {
     "A": "/dev/serial/by-path/pci-0000:0b:00.0-usb-0:2:1.0-port0",
     "B": "/dev/serial/by-path/pci-0000:00:1a.0-usb-0:1.1:1.0-port0",
 }
-args = [a for a in sys.argv[1:] if not a.startswith("--")]
+argv = sys.argv[1:]
+for key in ("A", "B"):
+    opt = "--" + key.lower()
+    if opt in argv:
+        i = argv.index(opt)
+        PORTS[key] = argv[i + 1]
+        del argv[i:i + 2]
+args = [a for a in argv if not a.startswith("--")]
 dur = float(args[0]) if args else 0
 reset = "--reset" in sys.argv
 t0 = time.time()
