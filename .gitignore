@@ -1,0 +1,35 @@
+# ESP-IDF
+build/
+sdkconfig
+sdkconfig.old
+managed_components/
+dependencies.lock
+
+# PlatformIO
+.pio/
+.pioenvs/
+.piolibdeps/
+
+# Arduino
+*.ino.bin
+*.ino.elf
+*.ino.map
+build-*/
+
+# Gizli bilgiler
+secrets.h
+**/secrets/*
+!**/secrets/*.example
+
+# IDE / OS
+.vscode/
+!.vscode/extensions.json
+.idea/
+*.swp
+.DS_Store
+Thumbs.db
+
+# Python araçları
+__pycache__/
+*.pyc
+.venv/
