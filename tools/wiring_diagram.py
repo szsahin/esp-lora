@@ -4,7 +4,7 @@
 Kullanım: python3 tools/wiring_diagram.py > hardware/nodemcu-v3-ra02-wiring.svg
 """
 
-W, H = 1080, 790
+W, H = 1080, 810
 FONT = "DejaVu Sans, Arial, sans-serif"
 
 # NodeMCU v3 header'ları (anten üstte, USB altta)
@@ -13,7 +13,7 @@ LEFT_PINS = ["A0", "RSV", "RSV", "SD3", "SD2", "SD1", "CMD", "SD0",
 RIGHT_PINS = ["D0", "D1", "D2", "D3", "D4", "3V3", "GND", "D5",
               "D6", "D7", "D8", "RX", "TX", "GND", "3V3"]
 GPIO = {"D0": "GPIO16", "D1": "GPIO5", "D2": "GPIO4", "D3": "GPIO0",
-        "D4": "GPIO2", "D5": "GPIO14", "D6": "GPIO12", "D7": "GPIO13",
+        "D4": "GPIO2 · LED", "D5": "GPIO14", "D6": "GPIO12", "D7": "GPIO13",
         "D8": "GPIO15", "RX": "GPIO3", "TX": "GPIO1"}
 
 # (NodeMCU pini, Ra-02 pini, Ra-02 pin no, renk, etiket)
@@ -53,7 +53,7 @@ out = [f'<svg xmlns="http://www.w3.org/2000/svg" width="{W}" height="{H}" '
        f'<rect width="{W}" height="{H}" fill="#ffffff"/>',
        text(W / 2, 38, "NodeMCU v3 (ESP8266)  ↔  Ai-Thinker Ra-02 (SX1278, 433 MHz)",
             20, "middle", "bold"),
-       text(W / 2, 62, "esp-lora · Ra-02 bağlantısı her iki düğümde aynı, GPS yalnızca vericide · mantıksal çizim "
+       text(W / 2, 62, "esp-lora · A = alıcı, B = verici · Ra-02 bağlantısı iki düğümde aynı, GPS yalnızca B'de · mantıksal çizim "
             "(Ra-02 fiziksel pad sırası için pin numaralarına bakın)", 12, "middle", fill="#666")]
 
 # --- NodeMCU kartı
@@ -138,7 +138,8 @@ GX, GY, GW, GH = MX, 92, MW + 60, 120
 GCOL = "#6d4c41"
 out.append(f'<rect x="{GX}" y="{GY}" width="{GW}" height="{GH}" rx="6" fill="#eef5ee" stroke="#2e7d32" stroke-width="2" stroke-dasharray="7 4"/>')
 out.append(text(GX + GW - 12, GY + 22, "GPS (NEO-6M vb.)", 14, "end", "bold", "#2e7d32"))
-out.append(text(GX + GW - 12, GY + 40, "yalnızca VERİCİ düğüm", 11, "end", fill="#2e7d32"))
+out.append(text(GX + GW - 12, GY + 82, "yalnızca VERİCİ (B)", 11, "end", "bold", "#2e7d32"))
+out.append(text(GX + GW - 12, GY + 100, "henüz test edilmedi", 11, "end", fill="#2e7d32"))
 gp = {"VCC": GY + 30, "GND": GY + 54, "TX": GY + 78, "RX": GY + 102}
 notes_g = {"VCC": "← NodeMCU Vin (5V)", "GND": "← NodeMCU GND", "TX": "", "RX": "bağlı değil"}
 for name, y in gp.items():
@@ -160,7 +161,8 @@ notes = [
     ("⚠ Ra-02 yalnızca 3.3 V ile çalışır — 5V / Vin'e bağlamayın.", "#c62828"),
     ("⚠ 433 MHz anten takılmadan yayın yapmayın (PA zarar görebilir).", "#c62828"),
     ("⚠ GPS TX'i RX (GPIO3) pinine bağlamayın — USB-seri (CH340) ile çakışır.", "#c62828"),
-    ("• D3/D4 (GPIO0/2) boot pinleri: kullanılmıyor. RST bilinçli olarak D0'da.", "#333"),
+    ("• D4 (GPIO2): kart üstü LED, düğüm tanıma (açılışta A tek, B çift yanıp söner).", "#333"),
+    ("• D3 (GPIO0) boot pini, boş. RST bilinçli olarak D0'da.", "#333"),
     ("• RadioLib:  SX1278 radio = new Module(15, 4, 16, RADIOLIB_NC);", "#333"),
 ]
 for i, (s, c) in enumerate(notes):
