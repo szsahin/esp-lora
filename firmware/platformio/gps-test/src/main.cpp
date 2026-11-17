@@ -94,7 +94,7 @@ void loop() {
       else
         snprintf(pos, sizeof(pos), "fix yok");
       char tm[16] = "--:--:--";
-      if (gps.time.isValid())
+      if (gps.time.isValid() && gps.time.age() < 5000 && (gps.time.value() != 0 || gps.date.isValid()))
         snprintf(tm, sizeof(tm), "%02u:%02u:%02u", gps.time.hour(), gps.time.minute(), gps.time.second());
       LOG("%s | uydu %lu | HDOP %.1f | UTC %s | %lu B/s | cumle ok %lu, checksum hata %lu",
           pos, gps.satellites.isValid() ? (unsigned long)gps.satellites.value() : 0UL,
