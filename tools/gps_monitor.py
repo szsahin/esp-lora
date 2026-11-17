@@ -1,8 +1,13 @@
 #!/home/mb/.local/share/pio-venv/bin/python
 """Alıcı (A) üzerinden B'nin GPS paketlerini canlı izler (firmware: gps-lora).
 
-Kullanım: gps_monitor.py [--port PORT] [--reset] [--no-log]
+Kullanım: gps_monitor.py [--port PORT] [--ref ENLEM,BOYLAM] [--reset] [--no-log]
   --port   : A'nın seri portu (Windows'ta ör. --port COM5). Verilmezse Linux by-path varsayılanı.
+  --ref    : mesafenin ölçüleceği sabit nokta (ör. A'nın/PC'nin konumu: --ref 38.342700,38.276100).
+             Verilmezse: ilk 5 İYİ fix'in ortalaması referans olur (B'yi A'nın yanında açın).
+
+Mesafe yalnızca İYİ fix'lerde hesaplanır: uydu >= 5 ve HDOP <= 3.0. Zayıf fix'ler (az uydu,
+yüksek HDOP — ör. bina içi, kapalı alan) sarı "zayıf" olarak gösterilir, mesafeye katılmaz.
   --reset  : başlarken A'yı resetle
   --no-log : CSV kaydı tutma (varsayılan: logs/gps-YYYYmmdd-HHMMSS.csv)
 Ctrl+C ile çık; çıkarken özet yazılır.
@@ -16,6 +21,10 @@ argv = sys.argv[1:]
 if "--port" in argv:
     PORT = argv[argv.index("--port") + 1]
 RESET = "--reset" in argv
+REF = None
+if "--ref" in argv:
+    REF = tuple(float(v) for v in argv[argv.index("--ref") + 1].split(","))
+MIN_SATS, MAX_HDOP, REF_SAMPLES = 5, 3.0, 5
 LOG = "--no-log" not in argv
 SILENCE_WARN_S = 15
 
@@ -55,13 +64,18 @@ def main():
         path = os.path.join(logdir, time.strftime("gps-%Y%m%d-%H%M%S.csv"))
         f = open(path, "w", newline="")
         writer = csv.writer(f)
-        writer.writerow(["pc_time", "seq", "fix", "lat", "lon", "alt", "sat", "hdop", "utc",
+        writer.writerow(["pc_time", "seq", "fix", "good", "lat", "lon", "alt", "sat", "hdop", "utc",
                          "rssi", "snr", "ferr", "dist_m", "lost"])
 
     print(f"{B0}GPS izleme{X} | port {PORT}" + (f" | kayıt {path}" if LOG else ""))
-    print(f"{D}B her 5 sn'de bir paket gönderir. Mesafe = ilk fix noktasına uzaklık. Ctrl+C: çık{X}\n")
+    if REF:
+        print(f"{D}Mesafe referansı (--ref): {REF[0]:.6f}, {REF[1]:.6f}{X}")
+    else:
+        print(f"{D}Mesafe referansı: ilk {REF_SAMPLES} iyi fix'in ortalaması (B'yi önce A'nın yanında tutun){X}")
+    print(f"{D}İyi fix: uydu >= {MIN_SATS}, HDOP <= {MAX_HDOP}. B her 5 sn'de bir paket gönderir. Ctrl+C: çık{X}\n")
 
-    start = None          # ilk fix noktası
+    start = REF           # mesafe referans noktası
+    ref_pts = []
     last_seq = None
     n_ok = n_lost = n_crc = 0
     max_d = 0.0
@@ -108,21 +122,30 @@ def main():
                 sig_col = G if rssi > -100 else (Y if rssi > -115 else R)
                 sig = f"{sig_col}RSSI {rssi:6.1f} dBm SNR {snr:5.1f}{X}"
                 lost_s = f" {R}(kayıp {lost}){X}" if lost else ""
-                if fix:
-                    if start is None:
-                        start = (lat, lon)
-                        print(f"{now()} {G}{B0}İLK FIX: {lat:.6f}, {lon:.6f} — başlangıç noktası{X}")
+                sats, hdop = int(kv["sat"]), float(kv["hdop"])
+                good = fix and sats >= MIN_SATS and hdop <= MAX_HDOP
+                if good and start is None:
+                    ref_pts.append((lat, lon))
+                    if len(ref_pts) >= REF_SAMPLES:
+                        start = (sum(p[0] for p in ref_pts) / len(ref_pts), sum(p[1] for p in ref_pts) / len(ref_pts))
+                        print(f"{now()} {G}{B0}REFERANS NOKTASI: {start[0]:.6f}, {start[1]:.6f} "
+                              f"({REF_SAMPLES} iyi fix ortalaması){X}")
+                base = (f"{lat:.6f},{lon:.6f} alt {kv['alt']:>4} m | uydu {kv['sat']:>2} HDOP {kv['hdop']:>4}")
+                if good and start is not None:
                     d = haversine_m(start, (lat, lon))
                     max_d = max(max_d, d)
                     dist = f"{d:.0f}"
-                    pos = (f"{G}FIX{X} {lat:.6f},{lon:.6f} alt {kv['alt']:>4} m | uydu {kv['sat']:>2} "
-                           f"HDOP {kv['hdop']:>4} | mesafe {B0}{d:6.0f} m{X}")
+                    pos = f"{G}FIX{X} {base} | mesafe {B0}{d:6.0f} m{X}"
+                elif good:
+                    pos = f"{G}FIX{X} {base} | referans toplanıyor {len(ref_pts)}/{REF_SAMPLES}"
+                elif fix:
+                    pos = f"{Y}zayıf{X} {base} | {Y}güvenilmez, mesafe yok{X}"
                 else:
                     why = "GPS VERİSİ YOK (kablo/besleme)" if kv.get("gpsdata") == "0" else "fix bekleniyor"
                     pos = f"{Y}fix yok{X} | uydu {kv['sat']:>2} | {why}"
                 print(f"{now()} #{seq:<5} {pos} | {sig} | UTC {kv['utc']}{lost_s}")
                 if writer and f:
-                    writer.writerow([time.strftime("%Y-%m-%d %H:%M:%S"), seq, int(fix), kv["lat"], kv["lon"],
+                    writer.writerow([time.strftime("%Y-%m-%d %H:%M:%S"), seq, int(fix), int(good), kv["lat"], kv["lon"],
                                      kv["alt"], kv["sat"], kv["hdop"], kv["utc"], kv["rssi"], kv["snr"],
                                      kv["ferr"], dist, lost])
                     f.flush()
@@ -140,7 +163,7 @@ def main():
         print(f"\n{B0}Özet{X} ({dur/60:.1f} dk): alınan {n_ok}, kayıp {n_lost}"
               + (f" (%{100*n_lost/total:.1f})" if total else "") + f", CRC hatası {n_crc}"
               + (f", en zayıf RSSI {rssi_min:.1f} dBm" if rssi_min is not None else "")
-              + (f", en uzak mesafe {max_d:.0f} m" if start else ""))
+              + (f", en uzak mesafe {max_d:.0f} m (iyi fix'ler)" if max_d else ""))
         if LOG:
             print(f"Kayıt: {path}")
 
