@@ -41,8 +41,7 @@
 <circle cx="40" cy="633" r="6" fill="#d4af37" stroke="#7a6418"/>
 <text x="54" y="637" font-size="11" text-anchor="start" font-weight="normal" fill="#aab" >GND</text>
 <circle cx="40" cy="659" r="6" fill="#d4af37" stroke="#7a6418"/>
-<circle cx="40" cy="659" r="6" fill="#d4af37" stroke="#fff" stroke-width="2"/>
-<text x="54" y="663" font-size="11" text-anchor="start" font-weight="bold" fill="#ffcc80" >Vin (5V) → GPS VCC</text>
+<text x="54" y="663" font-size="11" text-anchor="start" font-weight="normal" fill="#aab" >Vin</text>
 <circle cx="380" cy="295" r="6" fill="#d4af37" stroke="#7a6418"/>
 <text x="366" y="299" font-size="11" text-anchor="end" font-weight="bold" fill="#fff" >D0 (GPIO16)</text>
 <circle cx="380" cy="321" r="6" fill="#d4af37" stroke="#7a6418"/>
@@ -128,12 +127,12 @@
 <circle cx="386" cy="555" r="3.5" fill="#00897b"/>
 <text x="646" y="522" font-size="10.5" text-anchor="end" font-weight="bold" fill="#00897b" >NSS / CS</text>
 <rect x="660" y="92" width="310" height="120" rx="6" fill="#eef5ee" stroke="#2e7d32" stroke-width="2" stroke-dasharray="7 4"/>
-<text x="958" y="114" font-size="14" text-anchor="end" font-weight="bold" fill="#2e7d32" >GPS (NEO-6M vb.)</text>
+<text x="958" y="114" font-size="14" text-anchor="end" font-weight="bold" fill="#2e7d32" >GPS (NEO-6M)</text>
 <text x="958" y="174" font-size="11" text-anchor="end" font-weight="bold" fill="#2e7d32" >yalnızca VERİCİ (B)</text>
-<text x="958" y="192" font-size="11" text-anchor="end" font-weight="normal" fill="#2e7d32" >henüz test edilmedi</text>
+<text x="958" y="192" font-size="11" text-anchor="end" font-weight="normal" fill="#2e7d32" >donanımda doğrulandı (3.3 V)</text>
 <rect x="654" y="116" width="12" height="12" fill="#d4af37" stroke="#7a6418"/>
 <text x="672" y="126" font-size="12" text-anchor="start" font-weight="bold" fill="#222" >VCC</text>
-<text x="710" y="126" font-size="11" text-anchor="start" font-weight="normal" fill="#555" >← NodeMCU Vin (5V)</text>
+<text x="710" y="126" font-size="11" text-anchor="start" font-weight="normal" fill="#555" >← NodeMCU 3V3 (5V/Vin DEĞİL)</text>
 <rect x="654" y="140" width="12" height="12" fill="#d4af37" stroke="#7a6418"/>
 <text x="672" y="150" font-size="12" text-anchor="start" font-weight="bold" fill="#222" >GND</text>
 <text x="710" y="150" font-size="11" text-anchor="start" font-weight="normal" fill="#555" >← NodeMCU GND</text>
@@ -148,8 +147,9 @@
 <text x="646" y="184" font-size="10" text-anchor="end" font-weight="normal" fill="#6d4c41" >(SoftwareSerial)</text>
 <text x="430" y="622" font-size="12" text-anchor="start" font-weight="normal" fill="#c62828" >⚠ Ra-02 yalnızca 3.3 V ile çalışır — 5V / Vin'e bağlamayın.</text>
 <text x="430" y="642" font-size="12" text-anchor="start" font-weight="normal" fill="#c62828" >⚠ 433 MHz anten takılmadan yayın yapmayın (PA zarar görebilir).</text>
-<text x="430" y="662" font-size="12" text-anchor="start" font-weight="normal" fill="#c62828" >⚠ GPS TX'i RX (GPIO3) pinine bağlamayın — USB-seri (CH340) ile çakışır.</text>
-<text x="430" y="682" font-size="12" text-anchor="start" font-weight="normal" fill="#333" >• D4 (GPIO2): kart üstü LED, düğüm tanıma (açılışta A tek, B çift yanıp söner).</text>
-<text x="430" y="702" font-size="12" text-anchor="start" font-weight="normal" fill="#333" >• D3 (GPIO0) boot pini, boş. RST bilinçli olarak D0'da.</text>
-<text x="430" y="722" font-size="12" text-anchor="start" font-weight="normal" fill="#333" >• RadioLib:  SX1278 radio = new Module(15, 4, 16, RADIOLIB_NC);</text>
+<text x="430" y="662" font-size="12" text-anchor="start" font-weight="normal" fill="#c62828" >⚠ GPS 3.3 V ile beslenir (3V3, Ra-02 ile ortak) — Vin/5V kullanmayın.</text>
+<text x="430" y="682" font-size="12" text-anchor="start" font-weight="normal" fill="#c62828" >⚠ GPS TX'i RX (GPIO3) pinine bağlamayın — USB-seri (CH340) ile çakışır.</text>
+<text x="430" y="702" font-size="12" text-anchor="start" font-weight="normal" fill="#333" >• D4 (GPIO2): kart üstü LED, düğüm tanıma (açılışta A tek, B çift yanıp söner).</text>
+<text x="430" y="722" font-size="12" text-anchor="start" font-weight="normal" fill="#333" >• D3 (GPIO0) boot pini, boş. RST bilinçli olarak D0'da.</text>
+<text x="430" y="742" font-size="12" text-anchor="start" font-weight="normal" fill="#333" >• RadioLib:  SX1278 radio = new Module(15, 4, 16, RADIOLIB_NC);</text>
 </svg>

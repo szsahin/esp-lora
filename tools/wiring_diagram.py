@@ -75,11 +75,7 @@ right_y = {}
 for i, p in enumerate(LEFT_PINS):
     y = PY0 + i * PITCH
     out.append(f'<circle cx="{BX}" cy="{y}" r="6" fill="#d4af37" stroke="#7a6418"/>')
-    if p == "Vin":
-        out.append(f'<circle cx="{BX}" cy="{y}" r="6" fill="#d4af37" stroke="#fff" stroke-width="2"/>')
-        out.append(text(BX + 14, y + 4, "Vin (5V) → GPS VCC", 11, weight="bold", fill="#ffcc80"))
-    else:
-        out.append(text(BX + 14, y + 4, p, 11, fill="#aab"))
+    out.append(text(BX + 14, y + 4, p, 11, fill="#aab"))
 for i, p in enumerate(RIGHT_PINS):
     y = PY0 + i * PITCH
     # 3V3 ve GND'den yalnızca ilkini kullan
@@ -137,11 +133,11 @@ for i, (mp, rp, num, col, lbl) in enumerate(WIRES):
 GX, GY, GW, GH = MX, 92, MW + 60, 120
 GCOL = "#6d4c41"
 out.append(f'<rect x="{GX}" y="{GY}" width="{GW}" height="{GH}" rx="6" fill="#eef5ee" stroke="#2e7d32" stroke-width="2" stroke-dasharray="7 4"/>')
-out.append(text(GX + GW - 12, GY + 22, "GPS (NEO-6M vb.)", 14, "end", "bold", "#2e7d32"))
+out.append(text(GX + GW - 12, GY + 22, "GPS (NEO-6M)", 14, "end", "bold", "#2e7d32"))
 out.append(text(GX + GW - 12, GY + 82, "yalnızca VERİCİ (B)", 11, "end", "bold", "#2e7d32"))
-out.append(text(GX + GW - 12, GY + 100, "henüz test edilmedi", 11, "end", fill="#2e7d32"))
+out.append(text(GX + GW - 12, GY + 100, "donanımda doğrulandı (3.3 V)", 11, "end", fill="#2e7d32"))
 gp = {"VCC": GY + 30, "GND": GY + 54, "TX": GY + 78, "RX": GY + 102}
-notes_g = {"VCC": "← NodeMCU Vin (5V)", "GND": "← NodeMCU GND", "TX": "", "RX": "bağlı değil"}
+notes_g = {"VCC": "← NodeMCU 3V3 (5V/Vin DEĞİL)", "GND": "← NodeMCU GND", "TX": "", "RX": "bağlı değil"}
 for name, y in gp.items():
     out.append(f'<rect x="{GX-6}" y="{y-6}" width="12" height="12" fill="#d4af37" stroke="#7a6418"/>')
     out.append(text(GX + 12, y + 4, name, 12, weight="bold"))
@@ -160,6 +156,7 @@ ny = BY + BH + 2
 notes = [
     ("⚠ Ra-02 yalnızca 3.3 V ile çalışır — 5V / Vin'e bağlamayın.", "#c62828"),
     ("⚠ 433 MHz anten takılmadan yayın yapmayın (PA zarar görebilir).", "#c62828"),
+    ("⚠ GPS 3.3 V ile beslenir (3V3, Ra-02 ile ortak) — Vin/5V kullanmayın.", "#c62828"),
     ("⚠ GPS TX'i RX (GPIO3) pinine bağlamayın — USB-seri (CH340) ile çakışır.", "#c62828"),
     ("• D4 (GPIO2): kart üstü LED, düğüm tanıma (açılışta A tek, B çift yanıp söner).", "#333"),
     ("• D3 (GPIO0) boot pini, boş. RST bilinçli olarak D0'da.", "#333"),
