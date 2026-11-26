@@ -2,7 +2,7 @@
 
 ESP8266 (NodeMCU v3) + Ai-Thinker Ra-02 (SX1278, 433 MHz) ile LoRa haberleşme ve GPS konum aktarımı çalışmaları.
 
-- Dokümantasyon: [Wiki](https://tbx.ofis.cmvteknoloji.com:10443/gitea/MB/esp-lora/wiki) — donanım, kod yükleme (Linux/Windows), LoRa parametreleri, test sonuçları
+- Dokümantasyon: [Wiki](https://github.com/szsahin/esp-lora/wiki) — donanım, kod yükleme (Linux/Windows), LoRa parametreleri, test sonuçları
 - Kodlar: `firmware/` altında, geliştirme ortamına göre ayrılmış
 
 ## Sistem
